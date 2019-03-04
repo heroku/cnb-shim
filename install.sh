@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+bp_dir=$(cd $(dirname $0); pwd) # absolute path
+
+# TODO should we base this off of the buildpack.toml in the target buildpack?
+buildpack_toml="${1:?}"
+cp "${buildpack_toml}" "${bp_dir}/buildpack.toml"
+
+target_buildpack_url="${2:?}"
+target_dir="${bp_dir}/target"
+mkdir -p "${target_dir}"
+curl --retry 3 --silent --location "${target_buildpack_url}" | tar xzm -C "${target_dir}"

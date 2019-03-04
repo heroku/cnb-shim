@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# fail hard
+set -o pipefail
+# fail harder
+set -eu
+
+bp_dir=$(cd $(dirname $0)/..; pwd) # absolute path
+target_dir="${bp_dir}/target"
+layers_dir="${1:?}"
+
+# create a shim cache layer
+cache_dir="${layers_dir}/shim"
+mkdir -p "${cache_dir}"
+echo "cache = true" > ${layers_dir}/shim.toml
+
+"${target_dir}/bin/compile" "$(pwd)" "${cache_dir}" "${2:?}/env"
+
+# temp
+home_dir="${layers_dir}/home"
+mkdir -p "${home_dir}/profile.d"
+cp .profile.d/* "${home_dir}/profile.d/"
+echo "launch = true" > ${layers_dir}/home.toml
+
+# run bin/release, read Procfile, and generate launch.toml
+release="$(${target_dir}/bin/compile $(pwd) ${cache_dir} ${2:?}/env)"
