@@ -23,4 +23,4 @@ cp .profile.d/* "${home_dir}/profile.d/"
 echo "launch = true" > ${layers_dir}/home.toml
 
 # run bin/release, read Procfile, and generate launch.toml
-release="$(${target_dir}/bin/compile $(pwd) ${cache_dir} ${2:?}/env)"
+"${bp_dir}/bin/release" "${target_dir}"

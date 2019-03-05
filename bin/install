@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-bp_dir=$(cd $(dirname $0); pwd) # absolute path
+bp_dir=$(cd $(dirname $0)/..; pwd) # absolute path
 
 # TODO should we base this off of the buildpack.toml in the target buildpack?
 buildpack_toml="${1:?}"
