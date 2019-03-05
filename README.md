@@ -5,5 +5,7 @@ This is a Cloud Native Buildpack that acts as a shim for [Heroku Buildpacks](htt
 To use it, install the target buildpack:
 
 ```sh-session
-$ ./install.sh "path/to/buildpack.toml" "https://example.com/buildpack.tgz"
+$ bin/install "path/to/buildpack.toml" "https://example.com/buildpack.tgz"
 ```
+
+Then run this buildpack.
