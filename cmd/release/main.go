@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		fmt.Println("Usage:", os.Args[0], "TARGET_BUILDPACK_DIR", "LAYERS_DIR")
+	if len(os.Args) != 4 {
+		fmt.Println("Usage:", os.Args[0], "TARGET_BUILDPACK_DIR", "LAYERS_DIR", "PLATFORM_DIR")
 		return
 	}
 
