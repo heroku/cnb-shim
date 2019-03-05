@@ -1,9 +1,14 @@
 package releaser_test
 
 import (
+	"github.com/BurntSushi/toml"
+	"github.com/buildpack/libbuildpack/layers"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/buildpack/libbuildpack/logger"
 	"github.com/heroku/cnb-shim"
 )
 
@@ -73,3 +78,48 @@ func TestExecReleaseWithDefaultProcs(t *testing.T) {
 		t.Errorf("Expected 'web' process type of '%s'; got %s", expected, got)
 	}
 }
+
+func TestWriteLaunchMetadata(t *testing.T) {
+	buildpack := filepath.Join("test", "fixtures", "buildpack_with_default_procs")
+	app := filepath.Join("test", "fixtures", "app_with_procfile")
+	layersDir, err := ioutil.TempDir("", "layers")
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	log, err := logger.DefaultLogger(os.TempDir())
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	err = releaser.WriteLaunchMetadata(app, layersDir, buildpack, log)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	l := layers.Metadata{}
+
+	_, err = toml.DecodeFile(filepath.Join(layersDir, "launch.toml"), &l)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if l.Processes[0].Type != "web" {
+		t.Errorf("Expected 'web' process type; got %s", l.Processes)
+	}
+
+	expected := "node index.js"
+	if l.Processes[0].Command != expected {
+		t.Errorf("Expected 'web' process type of '%s'; got %s", expected, l.Processes[0].Command)
+	}
+
+	if l.Processes[1].Type != "worker" {
+		t.Errorf("Expected 'web' process type; got %s", l.Processes)
+	}
+
+	expected = "node worker.js"
+	if l.Processes[1].Command != expected {
+		t.Errorf("Expected 'web' process type of '%s'; got %s", expected, l.Processes[0].Command)
+	}
+}
+
