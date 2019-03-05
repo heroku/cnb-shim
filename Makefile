@@ -15,6 +15,9 @@ VERSION := "v0.0.1"
 build:
 	@GOOS=linux go build -o "bin/release" ./cmd/release/...
 
+test:
+	go test ./... -v
+
 clean:
 	-rm -f cnb-shim-$(VERSION).tgz
 	-rm -f bin/releaser
