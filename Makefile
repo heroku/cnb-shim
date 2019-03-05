@@ -20,7 +20,7 @@ test:
 
 clean:
 	-rm -f cnb-shim-$(VERSION).tgz
-	-rm -f bin/releaser
+	-rm -f bin/release
 
 package: clean build
 	@tar cvzf cnb-shim-$(VERSION).tgz bin/ README.md LICENSE
