@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+cat <<YAML
+addons:
+  - heroku-postgresql
+default_process_types:
+  web: java -jar myapp.jar
+YAML

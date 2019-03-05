@@ -46,3 +46,30 @@ func TestReadProcfileWithEmptyProcfile(t *testing.T) {
 		t.Errorf("Expected no process types; got %s", got)
 	}
 }
+
+func TestExecReleaseWithoutDefaultProcs(t *testing.T) {
+	buildpack := filepath.Join("test", "fixtures", "buildpack_without_default_procs")
+	app := filepath.Join("test", "fixtures", "app_with_empty_procfile")
+	got, err := releaser.ExecReleaseScript(app, buildpack)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if len(got.DefaultProcessTypes) != 0 {
+		t.Errorf("Expected no process types; got %s", got)
+	}
+}
+
+func TestExecReleaseWithDefaultProcs(t *testing.T) {
+	buildpack := filepath.Join("test", "fixtures", "buildpack_with_default_procs")
+	app := filepath.Join("test", "fixtures", "app_with_empty_procfile")
+	got, err := releaser.ExecReleaseScript(app, buildpack)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	expected := "java -jar myapp.jar"
+	if got.DefaultProcessTypes["web"] != expected {
+		t.Errorf("Expected 'web' process type of '%s'; got %s", expected, got)
+	}
+}

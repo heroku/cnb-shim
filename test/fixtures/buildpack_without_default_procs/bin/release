@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+cat <<YAML
+addons:
+  - heroku-postgresql
+YAML

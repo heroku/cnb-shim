@@ -13,7 +13,7 @@ import (
 )
 
 type Release struct {
-	DefaultProcessTypes map[string]string `json::"default_process_types" yaml::"default_process_types"`
+	DefaultProcessTypes map[string]string `yaml:"default_process_types,omitempty"`
 }
 
 func WriteLaunchMetadata(appDir, layersDir, targetBuildpackDir string, log logger.Logger) error {
@@ -65,7 +65,7 @@ func ExecReleaseScript(appDir, targetBuildpackDir string) (Release, error) {
 
 		release := Release{}
 
-		return release, yaml.Unmarshal([]byte(out), &release)
+		return release, yaml.Unmarshal(out, &release)
 	} else {
 		return Release{DefaultProcessTypes: make(map[string]string)}, nil
 	}
