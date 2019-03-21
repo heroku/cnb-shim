@@ -12,7 +12,7 @@ Then run this buildpack.
 
 ## Example: Elixir
 
-To use this shim with the hashnuke/elixir buildpack, install [`pack` CLI](https://github.com/buildpack/pack) and run:
+To use this shim with the [hashnuke/elixir](https://github.com/HashNuke/heroku-buildpack-elixir) buildpack, install [`pack` CLI](https://github.com/buildpack/pack) and run:
 
 ```
 $ cd elixir-cnb
