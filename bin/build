@@ -18,10 +18,10 @@ echo "cache = true" > ${layers_dir}/shim.toml
 "${target_dir}/bin/compile" "$(pwd)" "${cache_dir}" "${platform_dir}/env"
 
 # copy profile.d scripts into a layer so they will be sourced
-home_dir="${layers_dir}/home"
-mkdir -p "${home_dir}/profile.d"
-cp .profile.d/* "${home_dir}/profile.d/"
-echo "launch = true" > ${layers_dir}/home.toml
+profile_dir="${layers_dir}/profile"
+mkdir -p "${profile_dir}/profile.d"
+cp .profile.d/* "${profile_dir}/profile.d/"
+echo "launch = true" > ${layers_dir}/profile.toml
 
 # run bin/release, read Procfile, and generate launch.toml
 "${bp_dir}/bin/release" "${target_dir}" "${layers_dir}" "${platform_dir}"
