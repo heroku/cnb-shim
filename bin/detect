@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
+# fail hard
+set -o pipefail
+# fail harder
+set -eu
+
 bp_dir="$(cd $(dirname $0)/..; pwd)" # absolute path
 target_dir="${bp_dir}/target"
 
 "${target_dir}/bin/detect" "$(pwd)"
 
-exit 0
+exit $?
