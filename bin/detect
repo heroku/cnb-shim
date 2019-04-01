@@ -8,6 +8,6 @@ set -eu
 bp_dir="$(cd $(dirname $0)/..; pwd)" # absolute path
 target_dir="${bp_dir}/target"
 
-"${target_dir}/bin/detect" "$(pwd)"
+"${target_dir}/bin/detect" "$(pwd)" > /dev/null 2>&1
 
 exit $?
