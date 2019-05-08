@@ -30,7 +30,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	err = releaser.WriteLaunchMetadata(appDir, layersDir, targetDir, log)
+	err = cnbshim.WriteLaunchMetadata(appDir, layersDir, targetDir, log)
 	if err != nil {
 		log.Info(err.Error())
 		os.Exit(3)
