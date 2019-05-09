@@ -11,7 +11,7 @@ func DumpExportsFile(exportsData, envDir string) error {
 
 	for _, line := range lines {
 		if found, key, value := ParseExportsFileLine(line); found {
-			err := WriteEnvFile(envDir, key, value[1 : len(value)-1])
+			err := WriteEnvFile(envDir, key, value)
 			if err != nil {
 				return err
 			}
@@ -24,7 +24,11 @@ func ParseExportsFileLine(line string) (bool, string, string) {
 	components := strings.Split(line, "=")
 	export := strings.Split(components[0], " ")
 	if strings.TrimSpace(export[0]) == "export" {
-		return true, strings.TrimSpace(export[1]), components[1]
+		val := strings.TrimSpace(components[1])
+		if string(val[0]) == "\"" && string(val[len(val)-1]) == "\"" {
+			val = val[1: len(val)-1]
+		}
+		return true, strings.TrimSpace(export[1]), val
 	} else {
 		return false, "", ""
 	}

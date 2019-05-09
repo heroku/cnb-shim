@@ -55,3 +55,49 @@ export FOO=bar
 		t.Errorf("Expected %s; got %s", expected, actual)
 	}
 }
+
+func TestDumpExportsFileWithQuotes(t *testing.T) {
+	envDir, err := ioutil.TempDir("", "env")
+
+	exports := `
+export FOO="bar"
+`
+	err = cnbshim.DumpExportsFile(exports, envDir)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	expectedFile := filepath.Join(envDir, "FOO")
+	expected := "bar"
+	actual, err := ioutil.ReadFile(expectedFile)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if strings.TrimSpace(string(actual)) != expected {
+		t.Errorf("Expected %s; got %s", expected, actual)
+	}
+}
+
+func TestDumpExportsFileWithEscapedQuotes(t *testing.T) {
+	envDir, err := ioutil.TempDir("", "env")
+
+	exports := `
+export FOO="b\"a\"r"
+`
+	err = cnbshim.DumpExportsFile(exports, envDir)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	expectedFile := filepath.Join(envDir, "FOO")
+	expected := "b\\\"a\\\"r"
+	actual, err := ioutil.ReadFile(expectedFile)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if strings.TrimSpace(string(actual)) != expected {
+		t.Errorf("Expected %s; got %s", expected, actual)
+	}
+}
