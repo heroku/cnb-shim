@@ -24,9 +24,9 @@ cp .profile.d/* "${profile_dir}/profile.d/"
 echo "launch = true" > ${layers_dir}/profile.toml
 
 if [ -f "${target_dir}/export" ]; then
-	echo "build = true" >> ${layers_dir}/profile.toml
-	mkdir -p "${profile_dir}/profile.d/env.build/"
-	"${bp_dir}/bin/exports" "${target_dir}/export" "${platform_dir}" "${profile_dir}/profile.d/env.build/"
+  echo "build = true" >> ${layers_dir}/profile.toml
+  mkdir -p "${profile_dir}/env.build/"
+  "${bp_dir}/bin/exports" "${target_dir}/export" "${platform_dir}" "${profile_dir}/env.build/"
 fi
 
 # run bin/release, read Procfile, and generate launch.toml
