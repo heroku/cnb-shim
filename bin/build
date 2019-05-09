@@ -21,7 +21,13 @@ echo "cache = true" > ${layers_dir}/shim.toml
 profile_dir="${layers_dir}/profile"
 mkdir -p "${profile_dir}/profile.d"
 cp .profile.d/* "${profile_dir}/profile.d/"
-echo "launch = true" > ${layers_dir}/profile.toml
+echo "launch = true" > "${profile_dir}.toml"
+
+if [[ -f "${target_dir}/export" ]]; then
+  echo "build = true" >> "${profile_dir}.toml"
+  mkdir -p "${profile_dir}/env.build/"
+  "${bp_dir}/bin/exports" "${target_dir}/export" "${platform_dir}" "${profile_dir}/env.build/"
+fi
 
 # run bin/release, read Procfile, and generate launch.toml
 "${bp_dir}/bin/release" "${target_dir}" "${layers_dir}" "${platform_dir}"

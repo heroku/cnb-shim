@@ -1,15 +1,16 @@
-package releaser_test
+package cnbshim_test
+
 
 import (
-	"github.com/BurntSushi/toml"
-	"github.com/buildpack/libbuildpack/layers"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/buildpack/libbuildpack/logger"
-	"github.com/heroku/cnb-shim"
+	"github.com/BurntSushi/toml"
+	"github.com/buildpack/libbuildpack/layers"
+	releaser "github.com/heroku/cnb-shim"
 )
 
 func TestReadProcfileWithWebAndWorker(t *testing.T) {

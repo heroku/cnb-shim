@@ -1,4 +1,4 @@
-package releaser
+package cnbshim
 
 import (
 	"io/ioutil"
