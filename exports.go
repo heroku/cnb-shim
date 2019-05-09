@@ -11,7 +11,7 @@ func DumpExportsFile(exportsData, envDir string) error {
 
 	for _, line := range lines {
 		if found, key, value := ParseExportsFileLine(line); found {
-			err := WriteEnvFile(envDir, key, value)
+			err := WriteEnvFile(envDir, key, value[1 : len(value)-1])
 			if err != nil {
 				return err
 			}
