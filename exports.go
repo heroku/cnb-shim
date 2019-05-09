@@ -25,6 +25,8 @@ func ParseExportsFileLine(line string) (bool, string, string) {
 	export := strings.Split(components[0], " ")
 	if strings.TrimSpace(export[0]) == "export" {
 		val := strings.TrimSpace(components[1])
+
+		// Ideally we'd eval, but we don't want to eval things like $PATH embedded in the val
 		if string(val[0]) == "\"" && string(val[len(val)-1]) == "\"" {
 			val = val[1: len(val)-1]
 		}
