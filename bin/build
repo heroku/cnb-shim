@@ -6,9 +6,15 @@ set -o pipefail
 set -eu
 
 bp_dir=$(cd $(dirname $0)/..; pwd) # absolute path
-target_dir="${bp_dir}/target"
+source_dir="${bp_dir}/target"
+
 layers_dir="${1:?}"
 platform_dir="${2:?}"
+
+# copy the buildpack source into the target dir
+target_dir="$(mktemp -d)/target"
+cp -R "$source_dir" "$target_dir"
+chmod -R +w "$target_dir"
 
 # create a shim cache layer
 cache_dir="${layers_dir}/shim"
