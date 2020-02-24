@@ -17,7 +17,7 @@ To use this shim with the [hashnuke/elixir](https://github.com/HashNuke/heroku-b
 ```
 $ cd elixir-cnb
 
-$ curl -L https://github.com/heroku/cnb-shim/releases/download/v0.0.2/cnb-shim-v0.0.2.tgz | tar xz
+$ curl -L https://github.com/heroku/cnb-shim/releases/download/v0.1/cnb-shim-v0.1.tgz | tar xz
 
 $ cat > buildpack.toml << TOML
 > [buildpack]
