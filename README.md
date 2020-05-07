@@ -10,7 +10,7 @@ This shim can be used with any buildpack in the [Heroku Buildpack Registry](http
 https://cnb-shim.herokuapp.com/v1/<namespace>/<name>
 ```
 
-## Example: Elixir
+### Example: Elixir
 
 ```
 $ pack build elixir-app --buildpack https://cnb-shim.herokuapp.com/v1/hashnuke/elixir --builder heroku/buildpacks:18
