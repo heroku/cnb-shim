@@ -20,6 +20,8 @@ $ cd elixir-cnb
 $ curl -L https://github.com/heroku/cnb-shim/releases/download/v0.1/cnb-shim-v0.1.tgz | tar xz
 
 $ cat > buildpack.toml << TOML
+api = "0.2"
+
 > [buildpack]
 > id = "hashnuke.elixir"
 > version = "0.1"
