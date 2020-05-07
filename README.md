@@ -44,13 +44,13 @@ $ curl -L https://github.com/heroku/cnb-shim/releases/download/v0.1/cnb-shim-v0.
 $ cat > buildpack.toml << TOML
 api = "0.2"
 
-> [buildpack]
-> id = "hashnuke.elixir"
-> version = "0.1"
-> name = "Elixir"
->
-> [[stacks]]
-> id = "heroku-18"
+[buildpack]
+id = "hashnuke.elixir"
+version = "0.1"
+name = "Elixir"
+
+[[stacks]]
+id = "heroku-18"
 TOML
 
 $ bin/install buildpack.toml https://buildpack-registry.s3.amazonaws.com/buildpacks/hashnuke/elixir.tgz
