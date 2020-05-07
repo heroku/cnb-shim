@@ -1,6 +1,8 @@
+// +heroku goVersion go1.14
+
 module github.com/heroku/cnb-shim
 
-go 1.12
+go 1.14
 
 require (
 	github.com/BurntSushi/toml v0.3.1

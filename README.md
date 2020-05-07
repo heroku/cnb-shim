@@ -2,7 +2,29 @@
 
 This is a Cloud Native Buildpack that acts as a shim for [Heroku Buildpacks](https://devcenter.heroku.com/articles/buildpacks).
 
-To use it, install the target buildpack:
+## Usage
+
+This shim can be used with any buildpack in the [Heroku Buildpack Registry](https://devcenter.heroku.com/articles/buildpack-registry) by specifying a URL in the form:
+
+```
+https://cnb-shim.herokuapp.com/v1/<namespace>/<name>
+```
+
+### Example: Elixir
+
+```
+$ pack build elixir-app --buildpack https://cnb-shim.herokuapp.com/v1/hashnuke/elixir --builder heroku/buildpacks:18
+```
+
+For a complete list of available buildpacks run the following command from the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli):
+
+```
+$ heroku buildpacks:search
+```
+
+## Applying the Shim Manually
+
+To use the shim manually, install the target buildpack:
 
 ```sh-session
 $ bin/install "path/to/buildpack.toml" "https://example.com/buildpack.tgz"
@@ -10,7 +32,7 @@ $ bin/install "path/to/buildpack.toml" "https://example.com/buildpack.tgz"
 
 Then run this buildpack.
 
-## Example: Elixir
+### Example: Elixir
 
 To use this shim with the [hashnuke/elixir](https://github.com/HashNuke/heroku-buildpack-elixir) buildpack, install [`pack` CLI](https://github.com/buildpack/pack) and run:
 

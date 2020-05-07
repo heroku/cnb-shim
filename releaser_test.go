@@ -105,22 +105,34 @@ func TestWriteLaunchMetadata(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	if l.Processes[0].Type != "web" {
+	if len(l.Processes) != 2 {
+		t.Errorf("Expected 2 process type; got %d", len(l.Processes))
+	}
+
+	foundWeb := false
+	foundWorker := false
+	for _, p := range l.Processes {
+		if p.Type == "web" {
+			foundWeb = true
+			expected := "node index.js"
+			if p.Command != expected {
+				t.Errorf("Expected 'web' process type of '%s'; got %s", expected, p.Command)
+			}
+		} else if p.Type == "worker" {
+			foundWorker = true
+			expected := "node worker.js"
+			if p.Command != expected {
+				t.Errorf("Expected 'worker' process type of '%s'; got %s", expected, p.Command)
+			}
+		}
+	}
+
+	if !foundWeb {
 		t.Errorf("Expected 'web' process type; got %s", l.Processes)
 	}
 
-	expected := "node index.js"
-	if l.Processes[0].Command != expected {
-		t.Errorf("Expected 'web' process type of '%s'; got %s", expected, l.Processes[0].Command)
-	}
-
-	if l.Processes[1].Type != "worker" {
-		t.Errorf("Expected 'web' process type; got %s", l.Processes)
-	}
-
-	expected = "node worker.js"
-	if l.Processes[1].Command != expected {
-		t.Errorf("Expected 'web' process type of '%s'; got %s", expected, l.Processes[0].Command)
+	if !foundWorker {
+		t.Errorf("Expected 'worker' process type; got %s", l.Processes)
 	}
 }
 
