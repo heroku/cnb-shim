@@ -27,10 +27,12 @@ echo "cache = true" > ${layers_dir}/shim.toml
 "${target_dir}/bin/compile" "$(pwd)" "${cache_dir}" "${platform_dir}/env"
 
 # copy profile.d scripts into a layer so they will be sourced
-profile_dir="${layers_dir}/profile"
-mkdir -p "${profile_dir}/profile.d"
-cp .profile.d/* "${profile_dir}/profile.d/"
-echo "launch = true" > "${profile_dir}.toml"
+if [ -d .profile.d ]; then
+	profile_dir="${layers_dir}/profile"
+	mkdir -p "${profile_dir}/profile.d"
+	cp .profile.d/* "${profile_dir}/profile.d/"
+	echo "launch = true" > "${profile_dir}.toml"
+fi
 
 if [[ -f "${target_dir}/export" ]]; then
   echo "build = true" >> "${profile_dir}.toml"
