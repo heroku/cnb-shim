@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 4 {
-		fmt.Println("Usage:", os.Args[0], "TARGET_BUILDPACK_DIR", "LAYERS_DIR", "PLATFORM_DIR")
+	if len(os.Args) != 5 {
+		fmt.Println("Usage:", os.Args[0], "TARGET_BUILDPACK_DIR", "LAYERS_DIR", "PLATFORM_DIR", "APP_DIR")
 		return
 	}
 
@@ -24,7 +24,7 @@ func main() {
 	targetDir := os.Args[1]
 	layersDir := os.Args[2]
 
-	appDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	appDir, err := filepath.Abs(os.Args[4])
 	if err != nil {
 		log.Info(err.Error())
 		os.Exit(2)
