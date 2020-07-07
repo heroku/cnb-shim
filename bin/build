@@ -41,4 +41,4 @@ if [[ -f "${target_dir}/export" ]]; then
 fi
 
 # run bin/release, read Procfile, and generate launch.toml
-"${bp_dir}/bin/release" "${target_dir}" "${layers_dir}" "${platform_dir}"
+"${bp_dir}/bin/release" "${target_dir}" "${layers_dir}" "${platform_dir}" "$(pwd)"
