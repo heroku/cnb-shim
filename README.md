@@ -1,3 +1,5 @@
+# DO NOT MERGE
+
 # Cloud Native Buildpack Shim [![Build Status](https://travis-ci.com/heroku/cnb-shim.svg?token=bFx8xfjczBrYptbXskcQ&branch=master)](https://travis-ci.com/heroku/cnb-shim)
 
 This is a Cloud Native Buildpack that acts as a shim for [Heroku Buildpacks](https://devcenter.heroku.com/articles/buildpacks).
