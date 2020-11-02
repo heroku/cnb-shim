@@ -15,7 +15,7 @@ get '/v1/:namespace/:name' do
   version = params["version"] || "0.1"
   name = params["name"] || id
   api = params["api"] || "0.2"
-  stack = params["stack"] || "heroku-18"
+  stacks = (params["stacks"] || params["stack"] || "heroku-18,heroku-20").split(",")
   shim_dir = Dir.pwd
   url = "https://buildpack-registry.s3.amazonaws.com/buildpacks/#{id}.tgz"
   shimmed_buildpack = "#{SecureRandom.uuid}.tgz"
@@ -31,18 +31,25 @@ get '/v1/:namespace/:name' do
       FileUtils.cp(File.join(shim_dir, "bin", "exports"), "bin")
 
       # write a buildpack.toml
-      puts "at=descriptor file=#{shimmed_buildpack} api=#{api} id=#{id} version=#{version} name='#{name}' stack=#{stack}"
-      File.open("buildpack.toml", 'w') { |file| file.write( <<TOML ) }
+      puts "at=descriptor file=#{shimmed_buildpack} api=#{api} id=#{id} version=#{version} name='#{name}' stacks=#{stacks.join(",")}"
+      File.open("buildpack.toml", 'w') do |file|
+        file.write( <<TOML )
 api = "#{api}"
 
 [buildpack]
 id = "#{id}"
 version = "#{version}"
 name = "#{name}"
+TOML
+
+        stacks.each do |stack|
+          file.write( <<TOML )
 
 [[stacks]]
 id = "#{stack}"
 TOML
+        end
+      end
 
       # download and extract the target buildpack
       target_dir="target"
