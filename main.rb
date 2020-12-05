@@ -14,7 +14,7 @@ get '/v1/:namespace/:name' do
   id = "#{params['namespace']}/#{params['name']}"
   version = params["version"] || "0.1"
   name = params["name"] || id
-  api = params["api"] || "0.2"
+  api = params["api"] || "0.4"
   stacks = (params["stacks"] || params["stack"] || "heroku-18,heroku-20").split(",")
   shim_dir = Dir.pwd
   url = "https://buildpack-registry.s3.amazonaws.com/buildpacks/#{id}.tgz"
