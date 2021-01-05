@@ -9,7 +9,7 @@ jobs:
 
       - restore_cache: # restores saved cache if no changes are detected since last run
           keys:
-            - go-mod-{{ checksum "go.sum" }}
+            - go-mod-v1-{{ checksum "go.sum" }}
 
       - run:
           name: Test
@@ -22,9 +22,10 @@ jobs:
             make build
 
       - save_cache:
-          key: go-mod-{{ checksum "go.sum" }}
+          key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
-            - "/go/pkg/mod"
+            - ~/go/pkg/mod
+            - ~/.cache/go-build
 
 workflows:
   build-workflow:
