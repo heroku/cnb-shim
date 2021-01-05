@@ -7,13 +7,8 @@ require 'securerandom'
 
 Bundler.require
 
-require 'rollbar/request_data_extractor'
-class RequestDataExtractor
-  extend Rollbar::RequestDataExtractor
-  def self.from_rack(env)
-    extract_request_data_from_rack(env).merge(route: env["PATH_INFO"])
-  end
-end
+require 'rollbar/middleware/sinatra'
+use Rollbar::Middleware::Sinatra
 
 configure do
   if ENV.key?('ROLLBAR_ACCESS_TOKEN')
@@ -27,11 +22,6 @@ end
 
 configure { set :server, :puma }
 configure { set :port, ENV['PORT'] || 5000 }
-
-error do
-  req_data = RequestDataExtractor.from_rack(env)
-  Rollbar.report_exception(env['sinatra.error'], req_data)
-end
 
 get '/v1/:namespace/:name' do
   id = "#{params['namespace']}/#{params['name']}"
