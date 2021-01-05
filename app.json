@@ -1,0 +1,29 @@
+{
+    "name": "cnb-shim",
+    "keywords": [],
+    "stack": "heroku-18",
+    "addons": [],
+    "env": {
+      "LANG": {
+        "value": "en_US.UTF-8",
+        "required": true
+      },
+      "RACK_ENV": {
+        "value": "production",
+        "required": true
+      }
+    },
+    "formation": {
+      "web": {
+        "quantity": 1
+      }
+    },
+    "buildpacks": [
+      {
+        "url": "heroku/go"
+      },
+      {
+        "url": "heroku/ruby"
+      }
+    ]
+  }
