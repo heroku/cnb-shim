@@ -7,6 +7,19 @@ require 'securerandom'
 
 Bundler.require
 
+require 'rollbar/middleware/sinatra'
+use Rollbar::Middleware::Sinatra
+
+configure do
+  if ENV.key?('ROLLBAR_ACCESS_TOKEN')
+    Rollbar.configure do |config|
+      config.access_token = ENV.fetch('ROLLBAR_ACCESS_TOKEN')
+      config.environment = ENV.fetch('ROLLBAR_ENVIRONMENT', 'development')
+      config.root = Dir.pwd
+    end
+  end
+end
+
 configure { set :server, :puma }
 configure { set :port, ENV['PORT'] || 5000 }
 
