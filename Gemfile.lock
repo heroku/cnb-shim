@@ -9,6 +9,7 @@ GEM
     rack (2.2.3)
     rack-protection (2.0.8.1)
       rack
+    rollbar (3.1.1)
     ruby2_keywords (0.0.2)
     sinatra (2.0.8.1)
       mustermann (~> 1.0)
@@ -19,10 +20,15 @@ GEM
 
 PLATFORMS
   ruby
+  x86_64-darwin-19
 
 DEPENDENCIES
   puma
+  rollbar
   sinatra
 
+RUBY VERSION
+   ruby 2.7.2p137
+
 BUNDLED WITH
-   2.1.2
+   2.2.1
