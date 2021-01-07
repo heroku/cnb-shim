@@ -11,53 +11,53 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/heroku/cnb-shim/config"
+	"github.com/heroku/rollrus"
+	"github.com/rollbar/rollbar-go"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	var conf config.Config
+	config.LoadConfig(&conf)
+	rollrus.SetupLogging(conf.RollbarAccessToken, conf.RollbarEnvironment)
+
 	r := mux.NewRouter()
 	r.HandleFunc("/v1/{namespace}/{name}", NameHandler)
-	err := http.ListenAndServe(":5000", handlers.CompressHandler(r))
+	err := rollbar.WrapAndWait(http.ListenAndServe(":5000", handlers.CompressHandler(r)))
 
 	if err == nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Error(err)
 	}
 }
 
 func NameHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := fmt.Sprintf("%s/%s", vars["namespace"], vars["name"])
-
 	var version, name, api, stacks string
-	var found bool
 
-	if version, found = mux.Vars(r)["id"]; !found {
+	if version = vars["version"]; version != "" {
 		version = "0.1"
 	}
 
-	if name, found = mux.Vars(r)["name"]; !found {
+	if name = vars["name"]; name != "" {
 		name = id
 	}
 
-	if api, found = mux.Vars(r)["api"]; !found {
+	if api = vars["api"]; api != "" {
 		api = "0.4"
 	}
 
-	if stacks, found = mux.Vars(r)["stacks"]; !found {
-		stack, found := mux.Vars(r)["stacks"]
-		if !found {
-			stacks = "heroku-18,heroku-20"
-		} else {
+	if stacks = vars["stacks"]; stacks != "" {
+		stack := vars["stack"]
+		if stack != "" {
 			stacks = stack
+		} else {
+			stacks = "heroku-18,heroku-20"
 		}
 	}
 
-	shimDir, err := os.Getwd()
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	shimDir, _ := os.Getwd()
 
 	shimmedBuildpack := fmt.Sprintf("%s.tgz", uuid.New())
 	dir, _ := os.Getwd()
@@ -65,7 +65,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	defer os.RemoveAll(dir)
 	_ = os.Chdir(dir)
 
-	fmt.Printf("at=shim file=%s\n\n", shimmedBuildpack)
+	log.Infof("at=shim file=%s\n\n", shimmedBuildpack)
 
 	_ = os.Mkdir("bin", 0777)
 	input, _ := ioutil.ReadFile(fmt.Sprintf("%s/bin/build", shimDir))
@@ -80,7 +80,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/exports", shimDir))
 	_ = ioutil.WriteFile("bin/exports", input, 0644)
 
-	fmt.Printf("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s\n\n",
+	log.Infof("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s\n\n",
 		shimmedBuildpack, api, id, version, name, stacks)
 
 	file, _ := os.Create("buildpack.toml")
@@ -97,28 +97,27 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	_ = os.Mkdir(target_dir, 0777)
 
 	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s.tgz", id)
-	fmt.Printf("at=download file=%s url=%s\n\n", shimmedBuildpack, url)
+	log.Infof("at=download file=%s url=%s\n\n", shimmedBuildpack, url)
 	cmd := fmt.Sprintf(`curl --retry 3 --silent --location "%s" | tar xzm -C %s`, url, target_dir)
 
-	_, err = exec.Command("bash", "-c", cmd).Output()
+	_, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {
-		fmt.Printf("Failed to execute command: %s\n\n", cmd)
+		log.Error(err)
 	}
-	_ = os.Chdir(shimDir)
 
-	defer fmt.Printf("at=cleanup file=%s\n\n", shimmedBuildpack)
-	fstat, _ := file.Stat()
+	_ = os.Chdir(shimDir)
 	cmd = fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
+	defer fmt.Printf("at=cleanup file=%s\n\n", shimmedBuildpack)
 	defer os.Remove(shimmedBuildpack)
 
 	if err != nil {
-		fmt.Printf("Failed to execute command: %s\n\n", cmd)
-		fmt.Println(os.Getwd())
+		log.Error(err)
 	}
 
-	fmt.Printf("at=send file=%s size=%d", shimmedBuildpack, fstat.Size())
+	fstat, _ := file.Stat()
+	log.Infof("at=send file=%s size=%d", shimmedBuildpack, fstat.Size())
 	http.ServeFile(w, r, shimmedBuildpack)
-	fmt.Printf("at=success file=%s", shimmedBuildpack)
+	log.Infof("at=success file=%s", shimmedBuildpack)
 }
