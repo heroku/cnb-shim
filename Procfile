@@ -1,1 +1,1 @@
-web: ruby main.rb
+web: go run server/main.go
