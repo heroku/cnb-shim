@@ -67,17 +67,18 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("at=shim file=%s\n\n", shimmedBuildpack)
 
+	_ = os.Mkdir("bin", 0777)
 	input, _ := ioutil.ReadFile(fmt.Sprintf("%s/bin/build", shimDir))
-	_ = ioutil.WriteFile("build", input, 0644)
+	_ = ioutil.WriteFile("bin/build", input, 0644)
 
 	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/detect", shimDir))
-	_ = ioutil.WriteFile("detect", input, 0644)
+	_ = ioutil.WriteFile("bin/detect", input, 0644)
 
 	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/release", shimDir))
-	_ = ioutil.WriteFile("release", input, 0644)
+	_ = ioutil.WriteFile("bin/release", input, 0644)
 
 	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/exports", shimDir))
-	_ = ioutil.WriteFile("exports", input, 0644)
+	_ = ioutil.WriteFile("bin/exports", input, 0644)
 
 	fmt.Printf("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s\n\n",
 		shimmedBuildpack, api, id, version, name, stacks)
@@ -107,7 +108,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer fmt.Printf("at=cleanup file=%s\n\n", shimmedBuildpack)
 	fstat, _ := file.Stat()
-	cmd = fmt.Sprintf("tar cvfz %s %s", shimmedBuildpack, dir)
+	cmd = fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
 	defer os.Remove(shimmedBuildpack)
