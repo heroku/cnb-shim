@@ -24,10 +24,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/v1/{namespace}/{name}", NameHandler)
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "health check ok")
-		log.Info("health check ok")
-	})
+	r.HandleFunc("/health", HealthHandler)
 
 	port := fmt.Sprintf(":%s", conf.Port)
 	err := rollbar.WrapAndWait(http.ListenAndServe(port, handlers.CompressHandler(r)))
@@ -39,7 +36,6 @@ func main() {
 }
 
 func NameHandler(w http.ResponseWriter, r *http.Request) {
-	log.Info("proccessing request")
 	vars := mux.Vars(r)
 	id := fmt.Sprintf("%s/%s", vars["namespace"], vars["name"])
 	var version, name, api, stacks string
@@ -128,4 +124,9 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	log.Infof("at=send file=%s size=%d", shimmedBuildpack, fstat.Size())
 	http.ServeFile(w, r, shimmedBuildpack)
 	log.Infof("at=success file=%s", shimmedBuildpack)
+}
+
+func HealthHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "health check ok")
+	log.Info("health check ok")
 }
