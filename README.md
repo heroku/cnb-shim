@@ -27,7 +27,7 @@ $ heroku buildpacks:search
 To use the shim manually, install the target buildpack:
 
 ```sh-session
-$ bin/install "path/to/buildpack.toml" "https://example.com/buildpack.tgz"
+$ sbin/install "path/to/buildpack.toml" "https://example.com/buildpack.tgz"
 ```
 
 Then run this buildpack.
@@ -53,7 +53,7 @@ name = "Elixir"
 id = "heroku-18"
 TOML
 
-$ bin/install buildpack.toml https://buildpack-registry.s3.amazonaws.com/buildpacks/hashnuke/elixir.tgz
+$ sbin/install buildpack.toml https://buildpack-registry.s3.amazonaws.com/buildpacks/hashnuke/elixir.tgz
 
 $ cd ~/my-elixir-app/
 
