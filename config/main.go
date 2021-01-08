@@ -9,6 +9,7 @@ import (
 type Config struct {
 	RollbarAccessToken string `env:"ROLLBAR_ACCESS_TOKEN"`
 	RollbarEnvironment string `env:"ROLLBAR_ENVIRONMENT,default=development"`
+	Port               string `env:"PORT,default=:5000"`
 }
 
 func LoadConfig(conf *Config) {

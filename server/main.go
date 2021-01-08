@@ -24,14 +24,22 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/v1/{namespace}/{name}", NameHandler)
-	err := rollbar.WrapAndWait(http.ListenAndServe(":5000", handlers.CompressHandler(r)))
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "health check ok")
+		log.Info("health check ok")
+	})
+
+	port := fmt.Sprintf(":%s", conf.Port)
+	err := rollbar.WrapAndWait(http.ListenAndServe(port, handlers.CompressHandler(r)))
 
 	if err == nil {
 		log.Error(err)
 	}
+	log.Info("server started")
 }
 
 func NameHandler(w http.ResponseWriter, r *http.Request) {
+	log.Info("proccessing request")
 	vars := mux.Vars(r)
 	id := fmt.Sprintf("%s/%s", vars["namespace"], vars["name"])
 	var version, name, api, stacks string
