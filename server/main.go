@@ -73,26 +73,26 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	_ = os.Mkdir("bin", 0777)
 	input, _ := ioutil.ReadFile(fmt.Sprintf("%s/bin/build", shimDir))
-	_ = ioutil.WriteFile("bin/build", input, 0644)
+	_ = ioutil.WriteFile("bin/build", input, 0700)
 
 	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/detect", shimDir))
-	_ = ioutil.WriteFile("bin/detect", input, 0644)
+	_ = ioutil.WriteFile("bin/detect", input, 0700)
 
 	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/release", shimDir))
-	_ = ioutil.WriteFile("bin/release", input, 0644)
+	_ = ioutil.WriteFile("bin/release", input, 0700)
 
 	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/exports", shimDir))
-	_ = ioutil.WriteFile("bin/exports", input, 0644)
+	_ = ioutil.WriteFile("bin/exports", input, 0700)
 
 	log.Infof("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s",
 		shimmedBuildpack, api, id, version, name, stacks)
 
 	file, _ := os.Create("buildpack.toml")
 
-	bp := fmt.Sprintf("api = %s\n\n[buildpack] id = %s\nversion = %s\nname = %s\n", api, id, version, name)
+	bp := fmt.Sprintf("api = \"%s\"\n\n[buildpack]\nid = \"%s\"\nversion = \"%s\"\nname = \"%s\"\n", api, id, version, name)
 
 	for _, s := range strings.Split(stacks, ",") {
-		s = fmt.Sprintf("\n[[stacks]]\nid = %s\n", s)
+		s = fmt.Sprintf("\n[[stacks]]\nid = \"%s\"\n", s)
 		bp = bp + s
 	}
 
