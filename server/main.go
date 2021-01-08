@@ -39,25 +39,25 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := fmt.Sprintf("%s/%s", vars["namespace"], vars["name"])
 	var version, name, api, stacks string
+	var found bool
 
-	if version = vars["version"]; version != "" {
+	if version, found = mux.Vars(r)["version"]; !found {
 		version = "0.1"
 	}
 
-	if name = vars["name"]; name != "" {
-		name = id
+	if name, found = mux.Vars(r)["name"]; !found {
+		name = "0.1"
 	}
 
-	if api = vars["api"]; api != "" {
+	if api, found = mux.Vars(r)["api"]; !found {
 		api = "0.4"
 	}
 
-	if stacks = vars["stacks"]; stacks != "" {
-		stack := vars["stack"]
-		if stack != "" {
-			stacks = stack
-		} else {
+	if stacks, found = mux.Vars(r)["stacks"]; !found {
+		if stack, found := mux.Vars(r)["stack"]; !found {
 			stacks = "heroku-18,heroku-20"
+		} else {
+			stacks = stack
 		}
 	}
 
