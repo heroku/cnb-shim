@@ -122,6 +122,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	fstat, _ := file.Stat()
 	log.Infof("at=send file=%s size=%d", shimmedBuildpack, fstat.Size())
+	w.Header().Add("Content-Type", "application/x-gzip")
 	http.ServeFile(w, r, shimmedBuildpack)
 	log.Infof("at=success file=%s", shimmedBuildpack)
 }
