@@ -69,7 +69,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	defer os.RemoveAll(dir)
 	_ = os.Chdir(dir)
 
-	log.Infof("at=shim file=%s\n\n", shimmedBuildpack)
+	log.Infof("at=shim file=%s", shimmedBuildpack)
 
 	_ = os.Mkdir("bin", 0777)
 	input, _ := ioutil.ReadFile(fmt.Sprintf("%s/bin/build", shimDir))
@@ -84,7 +84,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/exports", shimDir))
 	_ = ioutil.WriteFile("bin/exports", input, 0644)
 
-	log.Infof("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s\n\n",
+	log.Infof("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s",
 		shimmedBuildpack, api, id, version, name, stacks)
 
 	file, _ := os.Create("buildpack.toml")
@@ -101,7 +101,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	_ = os.Mkdir(target_dir, 0777)
 
 	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s.tgz", id)
-	log.Infof("at=download file=%s url=%s\n\n", shimmedBuildpack, url)
+	log.Infof("at=download file=%s url=%s", shimmedBuildpack, url)
 	cmd := fmt.Sprintf(`curl --retry 3 --silent --location "%s" | tar xzm -C %s`, url, target_dir)
 
 	_, err := exec.Command("bash", "-c", cmd).Output()
@@ -113,7 +113,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	cmd = fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
-	defer fmt.Printf("at=cleanup file=%s\n\n", shimmedBuildpack)
+	defer fmt.Printf("at=cleanup file=%s", shimmedBuildpack)
 	defer os.Remove(shimmedBuildpack)
 
 	if err != nil {
