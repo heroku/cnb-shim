@@ -64,25 +64,25 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	dir, _ := os.Getwd()
 	dir, _ = ioutil.TempDir(dir, uuid.New().String())
 	defer os.RemoveAll(dir)
-	handleError(os.Chdir(dir))
+	handlePanic(os.Chdir(dir))
 
 	log.Infof("at=shim file=%s", shimmedBuildpack)
 
-	handleError(os.Mkdir("bin", 0777))
+	handlePanic(os.Mkdir("bin", 0777))
 
 	files := []string{"build", "detect", "release", "exports"}
 	for _, f := range files {
 		input, err := ioutil.ReadFile(fmt.Sprintf("%s/bin/%s", shimDir, f))
-		handleError(err)
+		handlePanic(err)
 		err = ioutil.WriteFile(fmt.Sprintf("bin/%s", f), input, 0700)
-		handleError(err)
+		handlePanic(err)
 	}
 
 	log.Infof("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s",
 		shimmedBuildpack, api, id, version, name, stacks)
 
 	file, err := os.Create("buildpack.toml")
-	handleError(err)
+	handlePanic(err)
 
 	bp := fmt.Sprintf("api = \"%s\"\n\n[buildpack]\nid = \"%s\"\nversion = \"%s\"\nname = \"%s\"\n", api, id, version, name)
 
@@ -92,27 +92,27 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = file.WriteString(bp)
-	handleError(err)
+	handlePanic(err)
 	target_dir := "target"
-	handleError(os.Mkdir(target_dir, 0777))
+	handlePanic(os.Mkdir(target_dir, 0777))
 
 	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s.tgz", id)
 	log.Infof("at=download file=%s url=%s", shimmedBuildpack, url)
 	cmd := fmt.Sprintf(`curl --retry 3 --silent --location "%s" | tar xzm -C %s`, url, target_dir)
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
-	handleError(err)
-	handleError(os.Chdir(shimDir))
+	handlePanic(err)
+	handlePanic(os.Chdir(shimDir))
 
 	cmd = fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
-	handleError(err)
+	handlePanic(err)
 	defer fmt.Printf("at=cleanup file=%s", shimmedBuildpack)
 	defer os.Remove(shimmedBuildpack)
 
 	fstat, err := file.Stat()
-	handleError(err)
+	handlePanic(err)
 	log.Infof("at=send file=%s size=%d", shimmedBuildpack, fstat.Size())
 	w.Header().Add("Content-Type", "application/x-gzip")
 	http.ServeFile(w, r, shimmedBuildpack)
@@ -124,8 +124,8 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	log.Info("health check ok")
 }
 
-func handleError(e error) {
+func handlePanic(e error) {
 	if e != nil {
-		log.Error(e)
+		log.Panic(e)
 	}
 }
