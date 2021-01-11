@@ -27,11 +27,8 @@ func main() {
 	r.HandleFunc("/health", HealthHandler)
 
 	port := fmt.Sprintf(":%s", conf.Port)
-	err := rollbar.WrapAndWait(http.ListenAndServe(port, handlers.CompressHandler(r)))
+	rollbar.WrapAndWait(http.ListenAndServe(port, handlers.CompressHandler(r)))
 
-	if err == nil {
-		log.Error(err)
-	}
 	log.Info("server started")
 }
 
@@ -39,22 +36,22 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := fmt.Sprintf("%s/%s", vars["namespace"], vars["name"])
 	var version, name, api, stacks string
-	var found bool
+	params := r.URL.Query()
 
-	if version, found = mux.Vars(r)["version"]; !found {
+	if version = params.Get("version"); version == "" {
 		version = "0.1"
 	}
 
-	if name, found = mux.Vars(r)["name"]; !found {
+	if name = params.Get("name"); name == "" {
 		name = "0.1"
 	}
 
-	if api, found = mux.Vars(r)["api"]; !found {
+	if api = params.Get("api"); api == "" {
 		api = "0.4"
 	}
 
-	if stacks, found = mux.Vars(r)["stacks"]; !found {
-		if stack, found := mux.Vars(r)["stack"]; !found {
+	if stacks = params.Get("stacks"); stacks == "" {
+		if stack := params.Get("stack"); stack == "" {
 			stacks = "heroku-18,heroku-20"
 		} else {
 			stacks = stack
@@ -67,27 +64,25 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	dir, _ := os.Getwd()
 	dir, _ = ioutil.TempDir(dir, uuid.New().String())
 	defer os.RemoveAll(dir)
-	_ = os.Chdir(dir)
+	handlePanic(os.Chdir(dir))
 
 	log.Infof("at=shim file=%s", shimmedBuildpack)
 
-	_ = os.Mkdir("bin", 0777)
-	input, _ := ioutil.ReadFile(fmt.Sprintf("%s/bin/build", shimDir))
-	_ = ioutil.WriteFile("bin/build", input, 0700)
+	handlePanic(os.Mkdir("bin", 0777))
 
-	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/detect", shimDir))
-	_ = ioutil.WriteFile("bin/detect", input, 0700)
-
-	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/release", shimDir))
-	_ = ioutil.WriteFile("bin/release", input, 0700)
-
-	input, _ = ioutil.ReadFile(fmt.Sprintf("%s/bin/exports", shimDir))
-	_ = ioutil.WriteFile("bin/exports", input, 0700)
+	files := []string{"build", "detect", "release", "exports"}
+	for _, f := range files {
+		input, err := ioutil.ReadFile(fmt.Sprintf("%s/bin/%s", shimDir, f))
+		handlePanic(err)
+		err = ioutil.WriteFile(fmt.Sprintf("bin/%s", f), input, 0700)
+		handlePanic(err)
+	}
 
 	log.Infof("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s",
 		shimmedBuildpack, api, id, version, name, stacks)
 
-	file, _ := os.Create("buildpack.toml")
+	file, err := os.Create("buildpack.toml")
+	handlePanic(err)
 
 	bp := fmt.Sprintf("api = \"%s\"\n\n[buildpack]\nid = \"%s\"\nversion = \"%s\"\nname = \"%s\"\n", api, id, version, name)
 
@@ -96,31 +91,28 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 		bp = bp + s
 	}
 
-	_, _ = file.WriteString(bp)
+	_, err = file.WriteString(bp)
+	handlePanic(err)
 	target_dir := "target"
-	_ = os.Mkdir(target_dir, 0777)
+	handlePanic(os.Mkdir(target_dir, 0777))
 
 	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s.tgz", id)
 	log.Infof("at=download file=%s url=%s", shimmedBuildpack, url)
 	cmd := fmt.Sprintf(`curl --retry 3 --silent --location "%s" | tar xzm -C %s`, url, target_dir)
 
-	_, err := exec.Command("bash", "-c", cmd).Output()
-	if err != nil {
-		log.Error(err)
-	}
+	_, err = exec.Command("bash", "-c", cmd).Output()
+	handlePanic(err)
+	handlePanic(os.Chdir(shimDir))
 
-	_ = os.Chdir(shimDir)
 	cmd = fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
+	handlePanic(err)
 	defer fmt.Printf("at=cleanup file=%s", shimmedBuildpack)
 	defer os.Remove(shimmedBuildpack)
 
-	if err != nil {
-		log.Error(err)
-	}
-
-	fstat, _ := file.Stat()
+	fstat, err := file.Stat()
+	handlePanic(err)
 	log.Infof("at=send file=%s size=%d", shimmedBuildpack, fstat.Size())
 	w.Header().Add("Content-Type", "application/x-gzip")
 	http.ServeFile(w, r, shimmedBuildpack)
@@ -130,4 +122,10 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "health check ok")
 	log.Info("health check ok")
+}
+
+func handlePanic(e error) {
+	if e != nil {
+		log.Panic(e)
+	}
 }
