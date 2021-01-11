@@ -7,3 +7,4 @@ target
 bin/release
 bin/exports
 cnb-shim-*.tgz
+.env
