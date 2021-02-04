@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+export_file=${1:-}
+platform_dir=${2:-}
+envs_dir=${3:-}
+
+if [[ -z $export_file || -z $platform_dir || -z $envs_dir ]]; then
+    echo "usage: exports <export file> <platform dir> <envs dir>" >&2
+    exit 1
+fi
+
+# save current env vars
+unset IFS
+declare -A envs_before
+for var in $(compgen -e); do
+    envs_before[$var]=${!var}
+done
+
+# source the export file
+set +euo pipefail
+. "$export_file"
+set -euo pipefail
+
+# export new/changed env vars
+for var in $(compgen -e); do
+    if [[ ! -v envs_before[$var] ]]; then
+        # new var, write it
+        echo -n "${!var}" >"${envs_dir}/${var}.override"
+        continue
+    fi
+
+    # existing var, check if value is different
+    if [[ ${envs_before[$var]} != "${!var}" ]]; then
+        echo -n "${!var}" >"${envs_dir}/${var}.override"
+    fi
+done

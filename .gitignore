@@ -5,6 +5,5 @@ target
 *.iml
 .DS_Store
 bin/release
-bin/exports
 cnb-shim-*.tgz
 .env
