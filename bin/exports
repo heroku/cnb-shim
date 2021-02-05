@@ -11,6 +11,16 @@ if [[ -z $export_file || -z $platform_dir || -z $envs_dir ]]; then
     exit 1
 fi
 
+if [[ ! -f "$export_file" ]]; then
+    echo "$export_file does not exist, skipping" >&2
+    exit 0
+fi
+
+if [[ ! -d "$envs_dir" ]]; then
+    echo "$envs_dir is not a valid directory" >&2
+    exit 1
+fi
+
 # save current env vars
 unset IFS
 declare -A envs_before
@@ -20,6 +30,7 @@ done
 
 # source the export file
 set +euo pipefail
+# shellcheck disable=SC1090
 . "$export_file"
 set -euo pipefail
 
