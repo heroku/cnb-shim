@@ -2,48 +2,49 @@
 
 set -euo pipefail
 
-export_file=${1:-}
-platform_dir=${2:-}
-envs_dir=${3:-}
+__cnb_shim__export_file=${1:-}
+__cnb_shim__platform_dir=${2:-}
+__cnb_shim__envs_dir=${3:-}
 
-if [[ -z $export_file || -z $platform_dir || -z $envs_dir ]]; then
+if [[ -z $__cnb_shim__export_file || -z $__cnb_shim__platform_dir || -z $__cnb_shim__envs_dir ]]; then
     echo "usage: exports <export file> <platform dir> <envs dir>" >&2
     exit 1
 fi
 
-if [[ ! -f "$export_file" ]]; then
-    echo "$export_file does not exist, skipping" >&2
+if [[ ! -f "$__cnb_shim__export_file" ]]; then
+    echo "$__cnb_shim__export_file does not exist, skipping" >&2
     exit 0
 fi
 
-if [[ ! -d "$envs_dir" ]]; then
-    echo "$envs_dir is not a valid directory" >&2
+if [[ ! -d "$__cnb_shim__envs_dir" ]]; then
+    echo "$__cnb_shim__envs_dir is not a valid directory" >&2
     exit 1
 fi
 
 # save current env vars
 unset IFS
-declare -A envs_before
+declare -A __cnb_shim__envs_before
 for var in $(compgen -e); do
-    envs_before[$var]=${!var}
+    __cnb_shim__envs_before[$var]=${!var}
 done
 
 # source the export file
 set +euo pipefail
 # shellcheck disable=SC1090
-. "$export_file"
+. "$__cnb_shim__export_file"
 set -euo pipefail
 
 # export new/changed env vars
+unset IFS
 for var in $(compgen -e); do
-    if [[ ! -v envs_before[$var] ]]; then
+    if [[ ! -v __cnb_shim__envs_before[$var] ]]; then
         # new var, write it
-        echo -n "${!var}" >"${envs_dir}/${var}.override"
+        echo -n "${!var}" >"${__cnb_shim__envs_dir}/${var}.override"
         continue
     fi
 
     # existing var, check if value is different
-    if [[ ${envs_before[$var]} != "${!var}" ]]; then
-        echo -n "${!var}" >"${envs_dir}/${var}.override"
+    if [[ ${__cnb_shim__envs_before[$var]} != "${!var}" ]]; then
+        echo -n "${!var}" >"${__cnb_shim__envs_dir}/${var}.override"
     fi
 done
