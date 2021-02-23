@@ -2,8 +2,6 @@
 
 # fail hard
 set -o pipefail
-# fail harder
-set -eu
 
 bp_dir="$(
     cd "$(dirname "$0")/.."
