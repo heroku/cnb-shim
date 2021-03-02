@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+i=0
+for var in "$@"; do
+    echo "got arg ${i}=${var}"
+    i=$((i + 1))
+done
+
+echo "got STACK=$STACK"
+
+mkdir .profile.d
+echo 'echo "buildpack HOME=$HOME"' >.profile.d/1.sh
+
+BIN_DIR=$(
+    cd "$(dirname "$0")"
+    pwd
+) # absolute path
+touch "${BIN_DIR}/../export"

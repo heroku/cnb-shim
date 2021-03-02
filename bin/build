@@ -126,10 +126,22 @@ if [[ -d .profile.d ]]; then
 	profile_dir="${layers_dir}/profile"
 
 	mkdir -p "${profile_dir}/profile.d"
-	cp .profile.d/* "${profile_dir}/profile.d/"
+	for script in .profile.d/*; do
+		dest="${profile_dir}/profile.d/$(basename "$script")"
 
-	mkdir -p "${profile_dir}/env.launch"
-	echo -n "$app_dir" >"${profile_dir}/env.launch/HOME.override"
+		# wrap each script and set $HOME to <app dir>
+		cat <<'EOF' >"$dest"
+__cnb_shim__HOME=$HOME
+HOME=$(pwd)
+
+EOF
+		cat "$script" >>"$dest"
+		cat <<'EOF' >>"$dest"
+
+HOME=$__cnb_shim__HOME
+unset __cnb_shim__HOME
+EOF
+	done
 
 	echo "launch = true" >"${profile_dir}.toml"
 fi

@@ -50,6 +50,9 @@ func TestExports(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tmp, err := ioutil.TempDir("", "exports")
 			require.NoError(t, err)
+			t.Cleanup(func() {
+				_ = os.RemoveAll(tmp)
+			})
 
 			cmd := exec.Command("bin/exports", fmt.Sprintf("test/fixtures/%s/export", tc.name), ".", tmp)
 			cmd.Stdout = os.Stdout
