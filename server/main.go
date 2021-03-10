@@ -140,16 +140,15 @@ func downloadBuildpack(url string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	id := uuid.New().String() + ".tgz"
-	out, err := os.Create(id)
+	file, err := ioutil.TempFile("", "*.tgz")
 	if err != nil {
 		return "", err
 	}
-	_, err = io.Copy(out, resp.Body)
+	_, err = io.Copy(file, resp.Body)
 
 	if err != nil {
 		return "", err
 	}
 
-	return id, err
+	return file.Name(), err
 }
