@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -98,13 +99,15 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s.tgz", id)
 	log.Infof("at=download file=%s url=%s", shimmedBuildpack, url)
-	cmd := fmt.Sprintf(`curl --retry 3 --silent --location "%s" | tar xzm -C %s`, url, target_dir)
-
-	_, err = exec.Command("bash", "-c", cmd).Output()
+	bp, err = downloadBuildpack(url)
 	handlePanic(err)
+	tar := fmt.Sprintf(`tar xzf %s -C %s`, bp, target_dir)
+	_, err = exec.Command("bash", "-c", tar).Output()
+	handlePanic(err)
+	handlePanic(os.Remove(bp))
 	handlePanic(os.Chdir(shimDir))
 
-	cmd = fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
+	cmd := fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
 	handlePanic(err)
@@ -128,4 +131,25 @@ func handlePanic(e error) {
 	if e != nil {
 		log.Panic(e)
 	}
+}
+
+func downloadBuildpack(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	id := uuid.New().String() + ".tgz"
+	out, err := os.Create(id)
+	if err != nil {
+		return "", err
+	}
+	_, err = io.Copy(out, resp.Body)
+
+	if err != nil {
+		return "", err
+	}
+
+	return id, err
 }
