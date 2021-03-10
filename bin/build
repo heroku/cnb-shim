@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# do not treat empty globs as literal
+shopt -s nullglob
+
 ANSI_RED="\033[1;31m"
 ANSI_RESET="\033[0m"
 
