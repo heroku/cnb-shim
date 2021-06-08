@@ -26,11 +26,34 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/v1/{namespace}/{name}", NameHandler)
 	r.HandleFunc("/health", HealthHandler)
+	r.Use(PanicRecoveryMiddleware)
 
 	port := fmt.Sprintf(":%s", conf.Port)
-	rollbar.WrapAndWait(http.ListenAndServe(port, handlers.CompressHandler(r)))
+	http.ListenAndServe(port, handlers.CompressHandler(r))
 
 	log.Info("server started")
+	rollbar.Wait()
+}
+
+// PanicRecoveryMiddleware recovers from a panic that may have occurred during a
+// request, reports the error to Rollbar, and sends back a 500.
+func PanicRecoveryMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if recoverVal := recover(); recoverVal != nil {
+				var err error
+				var ok bool
+				if err, ok = recoverVal.(error); ok {
+					rollbar.LogPanic(err, false)
+				}
+
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+
+		}()
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func NameHandler(w http.ResponseWriter, r *http.Request) {
@@ -138,9 +161,7 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 
 func handlePanic(e error) {
 	if e != nil {
-		rollbar.WrapAndWait(func() {
-			log.Panic(e)
-		})
+		log.Panic(e)
 	}
 }
 
