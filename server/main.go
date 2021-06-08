@@ -59,12 +59,15 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	shimDir, _ := os.Getwd()
+	shimDir, err := os.Getwd()
+	handlePanic(err)
 	log.Infof("at=shimDir dir=%s", shimDir)
 
 	shimmedBuildpack := fmt.Sprintf("%s.tgz", uuid.New())
-	dir, _ := os.Getwd()
-	dir, _ = ioutil.TempDir(dir, uuid.New().String())
+	dir, err := os.Getwd()
+	handlePanic(err)
+	dir, err = ioutil.TempDir(dir, uuid.New().String())
+	handlePanic(err)
 	defer os.RemoveAll(dir)
 	handlePanic(os.Chdir(dir))
 
