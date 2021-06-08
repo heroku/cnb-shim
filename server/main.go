@@ -138,7 +138,9 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 
 func handlePanic(e error) {
 	if e != nil {
-		log.Panic(e)
+		rollbar.WrapAndWait(func() {
+			log.Panic(e)
+		})
 	}
 }
 
