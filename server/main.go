@@ -60,6 +60,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	shimDir, _ := os.Getwd()
+	log.Infof("at=shimDir dir=%s", shimDir)
 
 	shimmedBuildpack := fmt.Sprintf("%s.tgz", uuid.New())
 	dir, _ := os.Getwd()
