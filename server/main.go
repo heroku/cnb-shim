@@ -143,15 +143,10 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	fstat, err := file.Stat()
 	handlePanic(err)
-	if err != nil {
-		log.Errorf("at=bad-request file=%s", shimmedBuildpack)
-		w.WriteHeader(http.StatusBadRequest)
-	} else {
-		log.Infof("at=send file=%s size=%d", shimmedBuildpack, fstat.Size())
-		w.Header().Add("Content-Type", "application/x-gzip")
-		http.ServeFile(w, r, shimmedBuildpack)
-		log.Infof("at=success file=%s", shimmedBuildpack)
-	}
+	log.Infof("at=send file=%s size=%d", shimmedBuildpack, fstat.Size())
+	w.Header().Add("Content-Type", "application/x-gzip")
+	http.ServeFile(w, r, shimmedBuildpack)
+	log.Infof("at=success file=%s", shimmedBuildpack)
 }
 
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
