@@ -93,6 +93,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	handlePanic(err)
 	defer os.RemoveAll(dir)
 	handlePanic(os.Chdir(dir))
+	defer os.Chdir(shimDir)
 
 	log.Infof("at=shim file=%s", shimmedBuildpack)
 
@@ -127,6 +128,12 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s.tgz", id)
 	log.Infof("at=download file=%s url=%s", shimmedBuildpack, url)
 	bp, err = downloadBuildpack(url)
+	if err != nil {
+		log.Error(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	handlePanic(err)
 	tar := fmt.Sprintf(`tar xzf %s -C %s`, bp, target_dir)
 	_, err = exec.Command("bash", "-c", tar).Output()
@@ -138,7 +145,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
 	handlePanic(err)
-	defer fmt.Printf("at=cleanup file=%s", shimmedBuildpack)
+	defer log.Infof("at=cleanup file=%s", shimmedBuildpack)
 	defer os.Remove(shimmedBuildpack)
 
 	fstat, err := file.Stat()
@@ -175,6 +182,10 @@ func downloadBuildpack(url string) (string, error) {
 
 	if err != nil {
 		return "", err
+	}
+
+	if resp.StatusCode >= 400 {
+		return "", fmt.Errorf("Failed to download buildpack %s (Status: %s)", url, resp.Status)
 	}
 
 	return file.Name(), err
