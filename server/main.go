@@ -82,35 +82,29 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	shimDir, err := os.Getwd()
-	handlePanic(err)
-	log.Infof("at=shimDir dir=%s", shimDir)
+	appDir, _ := os.Getwd()
 
-	shimmedBuildpack := fmt.Sprintf("%s.tgz", uuid.New())
-	dir, err := os.Getwd()
-	handlePanic(err)
-	dir, err = ioutil.TempDir(dir, uuid.New().String())
+	shimmedBuildpack := fmt.Sprintf("%s/%s.tgz", appDir, uuid.New())
+	dir, err := ioutil.TempDir("", uuid.New().String())
 	handlePanic(err)
 	defer os.RemoveAll(dir)
-	handlePanic(os.Chdir(dir))
-	defer os.Chdir(shimDir)
 
 	log.Infof("at=shim file=%s", shimmedBuildpack)
 
-	handlePanic(os.Mkdir("bin", 0777))
+	handlePanic(os.Mkdir(fmt.Sprintf("%s/bin/", dir), 0777))
 
 	files := []string{"build", "detect", "release", "exports"}
 	for _, f := range files {
-		input, err := ioutil.ReadFile(fmt.Sprintf("%s/bin/%s", shimDir, f))
+		input, err := ioutil.ReadFile(fmt.Sprintf("%s/bin/%s", appDir, f))
 		handlePanic(err)
-		err = ioutil.WriteFile(fmt.Sprintf("bin/%s", f), input, 0700)
+		err = ioutil.WriteFile(fmt.Sprintf("%s/bin/%s", dir, f), input, 0700)
 		handlePanic(err)
 	}
 
 	log.Infof("at=descriptor file=%s api=%s id=%s version=%s name=%s stacks=%s",
 		shimmedBuildpack, api, id, version, name, stacks)
 
-	file, err := os.Create("buildpack.toml")
+	file, err := os.Create(fmt.Sprintf("%s/buildpack.toml", dir))
 	handlePanic(err)
 
 	bp := fmt.Sprintf("api = \"%s\"\n\n[buildpack]\nid = \"%s\"\nversion = \"%s\"\nname = \"%s\"\n", api, id, version, name)
@@ -122,7 +116,8 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = file.WriteString(bp)
 	handlePanic(err)
-	target_dir := "target"
+
+	target_dir := fmt.Sprintf("%s/target", dir)
 	handlePanic(os.Mkdir(target_dir, 0777))
 
 	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s.tgz", id)
@@ -135,11 +130,11 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handlePanic(err)
+	log.Infof("at=tar file=%s target_dir=%s", shimmedBuildpack, target_dir)
 	tar := fmt.Sprintf(`tar xzf %s -C %s`, bp, target_dir)
 	_, err = exec.Command("bash", "-c", tar).Output()
 	handlePanic(err)
 	handlePanic(os.Remove(bp))
-	handlePanic(os.Chdir(shimDir))
 
 	cmd := fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
 
