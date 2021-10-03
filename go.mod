@@ -13,7 +13,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/heroku/rollrus v0.2.0
 	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
-	github.com/joho/godotenv v1.3.0
+	github.com/joho/godotenv v1.4.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/rollbar/rollbar-go v1.4.2
