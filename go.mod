@@ -17,7 +17,7 @@ require (
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/rollbar/rollbar-go v1.4.2
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
 	golang.org/x/text v0.3.2 // indirect
