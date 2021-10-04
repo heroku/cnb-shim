@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/toml v0.4.1
 	github.com/buildpack/libbuildpack v1.11.0
 	github.com/golang/protobuf v1.3.1 // indirect
-	github.com/google/uuid v1.1.4
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/heroku/rollrus v0.2.0
