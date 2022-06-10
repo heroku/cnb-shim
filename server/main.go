@@ -136,7 +136,10 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	handlePanic(err)
 	handlePanic(os.Remove(bp))
 
-	cmd := fmt.Sprintf("tar cz --file=%s --directory=%s .", shimmedBuildpack, dir)
+	// The sort, mtime and owner options ensure the archive is deterministic across time and dynos
+	// (since the user ID varies by dyno). See: https://reproducible-builds.org/docs/archives/
+	// This helps reduce layer churn in builder images containing shimmed buildpacks.
+	cmd := fmt.Sprintf("tar -cz --file=%s --directory=%s --sort=name --mtime='1980-01-01 00:00:01Z' --owner=0 --group=0 --numeric-owner .", shimmedBuildpack, dir)
 
 	_, err = exec.Command("bash", "-c", cmd).Output()
 	handlePanic(err)
