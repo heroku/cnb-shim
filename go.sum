@@ -42,8 +42,8 @@ github.com/pkg/errors v0.8.2-0.20190227000051-27936f6d90f9/go.mod h1:bwawxfHBFNV
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rollbar/rollbar-go v1.0.2/go.mod h1:AcFs5f0I+c71bpHlXNNDbOWJiKwjFDtISeXco0L5PKQ=
-github.com/rollbar/rollbar-go v1.4.2 h1:UzxjFgg9CFE0Vb3grGPpZHCnbKzNd8RYFtFHEKovauU=
-github.com/rollbar/rollbar-go v1.4.2/go.mod h1:kLQ9gP3WCRGrvJmF0ueO3wK9xWocej8GRX98D8sa39w=
+github.com/rollbar/rollbar-go v1.4.3 h1:ApUVQRvoMgCqrqbWFtUrYIv8ylRtN2xu2R+lsRBLNqk=
+github.com/rollbar/rollbar-go v1.4.3/go.mod h1:kLQ9gP3WCRGrvJmF0ueO3wK9xWocej8GRX98D8sa39w=
 github.com/sclevine/spec v1.2.0 h1:1Jwdf9jSfDl9NVmt8ndHqbTZ7XCCPbh1jI3hkDBHVYA=
 github.com/sclevine/spec v1.2.0/go.mod h1:W4J29eT/Kzv7/b9IWLB055Z+qvVC9vt0Arko24q7p+U=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
