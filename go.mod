@@ -5,7 +5,7 @@ module github.com/heroku/cnb-shim
 go 1.18
 
 require (
-	github.com/BurntSushi/toml v1.1.0
+	github.com/BurntSushi/toml v1.2.0
 	github.com/buildpack/libbuildpack v1.11.0
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/handlers v1.5.1
