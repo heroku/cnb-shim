@@ -1,0 +1,22 @@
+name: heroku/cnb-shim/build-workflow
+on:
+  push:
+jobs:
+  build:
+    runs-on: sfdc-hk-ubuntu-latest
+    container:
+      image: golang:1.14
+    steps:
+    - uses: actions/checkout@v2
+    - name: restore_cache
+      uses: actions/cache@v2
+      with:
+        key: go-mod-v1-{{ checksum "go.sum" }}
+        restore-keys: go-mod-v1-{{ checksum "go.sum" }}
+        path: |-
+          ~/go/pkg/mod
+          ~/.cache/go-build
+    - name: Test
+      run: make test
+    - name: Build
+      run: make build
