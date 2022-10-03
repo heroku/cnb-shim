@@ -1,5 +1,7 @@
 # Cloud Native Buildpack Shim
 
+[![CI](https://github.com/heroku/cnb-shim/actions/workflows/ci.yml/badge.svg)](https://github.com/heroku/cnb-shim/actions/workflows/ci.yml)
+
 This is a Cloud Native Buildpack that acts as a shim for [Heroku Buildpacks](https://devcenter.heroku.com/articles/buildpacks).
 
 ## Usage
