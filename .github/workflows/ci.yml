@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    # Avoid duplicate builds on PRs.
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Go and dependencies
+        uses: actions/setup-go@v3
+        with:
+          cache: true
+          go-version-file: go.mod
+      - name: Test
+        run: make test
+      - name: Build
+        run: make build
