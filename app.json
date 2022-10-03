@@ -1,7 +1,6 @@
 {
     "name": "cnb-shim",
     "keywords": [],
-    "stack": "heroku-18",
     "addons": [],
     "env": {
       "LANG": {
