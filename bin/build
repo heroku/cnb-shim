@@ -25,7 +25,10 @@ chmod -R +w "$target_dir"
 # create a shim cache layer
 cache_dir="${layers_dir}/shim"
 mkdir -p "${cache_dir}"
-echo "cache = true" >"${layers_dir}/shim.toml"
+cat > "${cache_dir}.toml" <<-EOL
+[types]
+cache = true
+EOL
 
 "${target_dir}/bin/compile" "$(pwd)" "${cache_dir}" "${platform_dir}/env"
 
@@ -34,7 +37,10 @@ if [[ -d .profile.d ]]; then
 	profile_dir="${layers_dir}/profile"
 	mkdir -p "${profile_dir}/profile.d"
 	cp .profile.d/* "${profile_dir}/profile.d/"
-	echo "launch = true" >"${profile_dir}.toml"
+	cat > "${profile_dir}.toml" <<-EOL
+	[types]
+	launch = true
+	EOL
 fi
 
 if [[ -f "${target_dir}/export" ]]; then

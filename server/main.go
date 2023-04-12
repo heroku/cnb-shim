@@ -71,7 +71,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if api = params.Get("api"); api == "" {
-		api = "0.4"
+		api = "0.8"
 	}
 
 	if stacks = params.Get("stacks"); stacks == "" {
