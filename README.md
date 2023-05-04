@@ -52,7 +52,7 @@ version = "0.1"
 name = "Elixir"
 
 [[stacks]]
-id = "heroku-18"
+id = "heroku-22"
 TOML
 
 $ sbin/install buildpack.toml https://buildpack-registry.s3.amazonaws.com/buildpacks/hashnuke/elixir.tgz
