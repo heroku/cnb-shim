@@ -76,7 +76,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 
 	if stacks = params.Get("stacks"); stacks == "" {
 		if stack := params.Get("stack"); stack == "" {
-			stacks = "heroku-18,heroku-20,heroku-22"
+			stacks = "heroku-20,heroku-22"
 		} else {
 			stacks = stack
 		}
