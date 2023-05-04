@@ -58,9 +58,15 @@ func PanicRecoveryMiddleware(next http.Handler) http.Handler {
 
 func NameHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := fmt.Sprintf("%s/%s", vars["namespace"], vars["name"])
-	var version, name, api, stacks string
+	registry_namespace := vars["namespace"]
+	registry_name := vars["name"]
+
+	var id, version, name, api, stacks string
 	params := r.URL.Query()
+
+	if id = params.Get("id"); id == "" {
+		id = fmt.Sprintf("%s/%s", registry_namespace, registry_name)
+	}
 
 	if version = params.Get("version"); version == "" {
 		version = "0.1"
@@ -120,7 +126,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	target_dir := fmt.Sprintf("%s/target", dir)
 	handlePanic(os.Mkdir(target_dir, 0777))
 
-	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s.tgz", id)
+	url := fmt.Sprintf("https://buildpack-registry.s3.amazonaws.com/buildpacks/%s/%s.tgz", registry_namespace, registry_name)
 	log.Infof("at=download file=%s url=%s", shimmedBuildpack, url)
 	bp, err = downloadBuildpack(url)
 	if err != nil {
