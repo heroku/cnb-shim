@@ -67,7 +67,7 @@ func NameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if name = params.Get("name"); name == "" {
-		name = "0.1"
+		name = id
 	}
 
 	if api = params.Get("api"); api == "" {
