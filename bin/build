@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
 
-# fail hard
-set -o pipefail
-# fail harder
-set -eu
+set -euo pipefail
+
+ANSI_RED="\033[1;31m"
+ANSI_RESET="\033[0m"
+
+function display_error() {
+	echo >&2
+	# We have to ANSI wrap each line separately to prevent breakage if line prefixes are added
+	# later (such as when the builder is untrusted, or when Git adds the "remote:" prefix).
+	while IFS= read -r line; do
+		echo -e "${ANSI_RED}${line}${ANSI_RESET}" >&2
+	done <<< "${1}"
+	echo >&2
+}
 
 bp_dir=$(
 	cd "$(dirname "$0")/.."
@@ -16,6 +26,87 @@ platform_dir="${2:?}"
 
 # translate new stack ID to old stack ID
 export STACK="$CNB_STACK_ID"
+
+
+if [[ "${STACK}" == "heroku-"* ]]; then
+	if [[ "${ALLOW_EOL_SHIMMED_BUILDER:-}" == "1" ]]; then
+		MSG_PREFIX="WARNING"
+		MSG_FOOTER="Allowing the build to continue since ALLOW_EOL_SHIMMED_BUILDER is set."
+	else
+		MSG_PREFIX="ERROR"
+		MSG_FOOTER="To ignore this error, set the env var ALLOW_EOL_SHIMMED_BUILDER to 1."
+	fi
+
+	display_error "$(cat <<-EOF
+		#######################################################################
+
+		${MSG_PREFIX}: This buildpack is a legacy buildpack that has been shimmed
+		for compatibility with Cloud Native Buildpacks (CNBs) using the
+		cnb-shim service:
+		https://github.com/heroku/cnb-shim
+
+		The cnb-shim service is not actively maintained and does not support
+		modern Buildpack API and lifecycle versions.
+
+		In addition, the legacy builder images that use shimmed buildpacks
+		(such as 'heroku/buildpacks:20' or 'heroku/builder-classic:22') are
+		no longer supported and will soon stop receiving security updates.
+
+		Please switch to one of our newer 'heroku/builder:*' builder images,
+		such as 'heroku/builder:22':
+		https://github.com/heroku/cnb-builder-images#available-images
+
+		If you are using the Pack CLI, you will need to adjust your '--builder'
+		CLI argument, or else change the default builder configuration using:
+		'pack config default-builder <new_builder_name>'
+
+		If you are using a third-party platform to deploy your app, check their
+		documentation for how to adjust the builder image used for your build.
+
+		If you manually specify a cnb-shim buildpack URL (that refers to
+		'cnb-shim.herokuapp.com') you will also need to update that to
+		the ID of a non-shimmed buildpack.
+
+		See here for Heroku's supported CNB languages:
+		https://github.com/heroku/buildpacks#supported-languages
+
+		Or search for community buildpacks here:
+		https://registry.buildpacks.io/
+
+		${MSG_FOOTER}
+
+		#######################################################################
+		EOF
+	)"
+
+	if [[ "${ALLOW_EOL_SHIMMED_BUILDER:-}" != "1" ]]; then
+		exit 1
+	fi
+else
+	display_error "$(cat <<-'EOF'
+		#######################################################################
+
+		WARNING: This buildpack is a legacy buildpack that has been shimmed
+		for compatibility with Cloud Native Buildpacks (CNBs) using the
+		cnb-shim service:
+		https://github.com/heroku/cnb-shim
+
+		The cnb-shim service is not actively maintained and does not support
+		modern Buildpack API and lifecycle versions.
+
+		Please switch to a buildpack that supports CNBs natively and so does
+		not need shimming.
+
+		See here for Heroku's supported CNB languages:
+		https://github.com/heroku/buildpacks#supported-languages
+
+		Or search for community buildpacks here:
+		https://registry.buildpacks.io/
+
+		#######################################################################
+		EOF
+	)"
+fi
 
 # copy the buildpack source into the target dir
 target_dir="$(mktemp -d)/target"
