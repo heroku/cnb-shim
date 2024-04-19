@@ -122,14 +122,13 @@ cache_dir="${layers_dir}/shim"
 mkdir -p "${cache_dir}"
 echo "cache = true" >"${layers_dir}/shim.toml"
 
-echo "-----> Running bin/compile"
+echo "-----> CNB Shim: Running bin/compile"
 
 "${target_dir}/bin/compile" "${app_dir}" "${cache_dir}" "${platform_dir}/env"
 
-echo "-----> Setting up profile.d scripts"
-
 # copy profile.d scripts into a layer so they will be sourced
 if [[ -d .profile.d ]]; then
+	echo "-----> CNB Shim: Converting .profile.d/ scripts"
 	profile_dir="${layers_dir}/profile"
 
 	mkdir -p "${profile_dir}/profile.d"
@@ -153,15 +152,14 @@ EOF
 	echo "launch = true" >"${profile_dir}.toml"
 fi
 
-echo "-----> Setting up exports"
-
 if [[ -f "${target_dir}/export" ]]; then
+	echo "-----> CNB Shim: Converting buildpack export file"
 	echo "build = true" >>"${profile_dir}.toml"
 	mkdir -p "${profile_dir}/env.build/"
 	"${bp_dir}/bin/exports" "${target_dir}/export" "${platform_dir}" "${profile_dir}/env.build/"
 fi
 
-echo "-----> Running bin/release"
+echo "-----> CNB Shim: Running bin/release"
 
 # run bin/release, read Procfile, and generate launch.toml
 "${bp_dir}/bin/release" "${target_dir}" "${layers_dir}" "${platform_dir}" "${app_dir}"
