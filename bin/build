@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# do not treat empty globs as literal
+shopt -s nullglob
+
 ANSI_RED="\033[1;31m"
 ANSI_RESET="\033[0m"
 
@@ -23,6 +26,7 @@ source_dir="${bp_dir}/target"
 
 layers_dir="${1:?}"
 platform_dir="${2:?}"
+app_dir="$(pwd)"
 
 # translate new stack ID to old stack ID
 export STACK="$CNB_STACK_ID"
@@ -118,13 +122,30 @@ cache_dir="${layers_dir}/shim"
 mkdir -p "${cache_dir}"
 echo "cache = true" >"${layers_dir}/shim.toml"
 
-"${target_dir}/bin/compile" "$(pwd)" "${cache_dir}" "${platform_dir}/env"
+"${target_dir}/bin/compile" "${app_dir}" "${cache_dir}" "${platform_dir}/env"
 
 # copy profile.d scripts into a layer so they will be sourced
 if [[ -d .profile.d ]]; then
 	profile_dir="${layers_dir}/profile"
+
 	mkdir -p "${profile_dir}/profile.d"
-	cp .profile.d/* "${profile_dir}/profile.d/"
+	for script in .profile.d/*; do
+		dest="${profile_dir}/profile.d/$(basename "${script}")"
+
+		# wrap each script and set $HOME to <app dir>
+		cat <<'EOF' >"${dest}"
+__cnb_shim__original_HOME="${HOME}"
+HOME=$(pwd)
+
+EOF
+		cat "${script}" >>"${dest}"
+		cat <<'EOF' >>"${dest}"
+
+HOME="${__cnb_shim__original_HOME}"
+unset __cnb_shim__original_HOME
+EOF
+	done
+
 	echo "launch = true" >"${profile_dir}.toml"
 fi
 
@@ -135,4 +156,4 @@ if [[ -f "${target_dir}/export" ]]; then
 fi
 
 # run bin/release, read Procfile, and generate launch.toml
-"${bp_dir}/bin/release" "${target_dir}" "${layers_dir}" "${platform_dir}" "$(pwd)"
+"${bp_dir}/bin/release" "${target_dir}" "${layers_dir}" "${platform_dir}" "${app_dir}"
