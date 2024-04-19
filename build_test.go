@@ -36,7 +36,7 @@ func TestBuild(t *testing.T) {
 	var out bytes.Buffer
 	cmd := exec.Command(tmp+"/buildpack/bin/build", tmp+"/layers", tmp+"/platform")
 	cmd.Dir = tmp + "/app"
-	cmd.Env = append(os.Environ(), "CNB_STACK_ID=heroku-20")
+	cmd.Env = append(os.Environ(), "CNB_STACK_ID=heroku-20", "ALLOW_EOL_SHIMMED_BUILDER=1")
 	cmd.Stdout = &out
 	cmd.Stderr = &out
 	err = cmd.Run()
