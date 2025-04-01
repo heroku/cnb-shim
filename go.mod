@@ -13,7 +13,7 @@ require (
 	github.com/heroku/rollrus v0.2.0
 	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
 	github.com/joho/godotenv v1.5.1
-	github.com/rollbar/rollbar-go v1.4.5
+	github.com/rollbar/rollbar-go v1.4.6
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
 	gopkg.in/yaml.v2 v2.4.0
