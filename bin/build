@@ -31,30 +31,31 @@ app_dir="$(pwd)"
 # translate new stack ID to old stack ID
 export STACK="$CNB_STACK_ID"
 
+if [[ "${ALLOW_EOL_CNB_SHIM:-}" == "1" ]]; then
+	MSG_PREFIX="WARNING"
+	MSG_FOOTER="Allowing the build to continue since ALLOW_EOL_CNB_SHIM is set."
+else
+	MSG_PREFIX="ERROR"
+	MSG_FOOTER="To ignore this error, set the env var ALLOW_EOL_CNB_SHIM to 1."
+fi
 
 if [[ "${STACK}" == "heroku-"* ]]; then
-	if [[ "${ALLOW_EOL_SHIMMED_BUILDER:-}" == "1" ]]; then
-		MSG_PREFIX="WARNING"
-		MSG_FOOTER="Allowing the build to continue since ALLOW_EOL_SHIMMED_BUILDER is set."
-	else
-		MSG_PREFIX="ERROR"
-		MSG_FOOTER="To ignore this error, set the env var ALLOW_EOL_SHIMMED_BUILDER to 1."
-	fi
-
 	display_error "$(cat <<-EOF
 		#######################################################################
 
 		${MSG_PREFIX}: This buildpack is a legacy buildpack that has been shimmed
 		for compatibility with Cloud Native Buildpacks (CNBs) using the
-		cnb-shim service:
-		https://github.com/heroku/cnb-shim
+		cnb-shim service hosted at https://cnb-shim.herokuapp.com.
 
-		The cnb-shim service is not actively maintained and does not support
-		modern Buildpack API and lifecycle versions.
+		The cnb-shim service isn't actively maintained and doesn't support
+		modern Buildpack API and lifecycle versions. As such, it's being
+		sunset and the hosted instance will be switched off soon:
+		https://github.com/heroku/cnb-shim/issues/95
 
 		In addition, the legacy builder images that use shimmed buildpacks
 		(such as 'heroku/buildpacks:20' or 'heroku/builder-classic:22') are
-		no longer supported and do not receive any security updates or fixes.
+		no longer supported and so haven't received security updates since
+		May 2024.
 
 		Please switch to one of our newer 'heroku/builder:*' builder images:
 		https://github.com/heroku/cnb-builder-images#available-images
@@ -81,24 +82,22 @@ if [[ "${STACK}" == "heroku-"* ]]; then
 		#######################################################################
 		EOF
 	)"
-
-	if [[ "${ALLOW_EOL_SHIMMED_BUILDER:-}" != "1" ]]; then
-		exit 1
-	fi
 else
-	display_error "$(cat <<-'EOF'
+	display_error "$(cat <<-EOF
 		#######################################################################
 
-		WARNING: This buildpack is a legacy buildpack that has been shimmed
+		${MSG_PREFIX}: This buildpack is a legacy buildpack that has been shimmed
 		for compatibility with Cloud Native Buildpacks (CNBs) using the
 		cnb-shim service:
 		https://github.com/heroku/cnb-shim
 
-		The cnb-shim service is not actively maintained and does not support
-		modern Buildpack API and lifecycle versions.
+		The cnb-shim service isn't actively maintained and doesn't support
+		modern Buildpack API and lifecycle versions. As such, it's being
+		sunset and the hosted instance will be switched off soon:
+		https://github.com/heroku/cnb-shim/issues/95
 
-		Please switch to a buildpack that supports CNBs natively and so does
-		not need shimming.
+		Please switch to a buildpack that supports CNBs natively and so doesn't
+		need shimming.
 
 		See here for Heroku's supported CNB languages:
 		https://github.com/heroku/buildpacks#supported-languages
@@ -106,9 +105,15 @@ else
 		Or search for community buildpacks here:
 		https://registry.buildpacks.io/
 
+		${MSG_FOOTER}
+
 		#######################################################################
 		EOF
 	)"
+fi
+
+if [[ "${ALLOW_EOL_CNB_SHIM:-}" != "1" ]]; then
+	exit 1
 fi
 
 # copy the buildpack source into the target dir
