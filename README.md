@@ -3,7 +3,7 @@
 [![CI](https://github.com/heroku/cnb-shim/actions/workflows/ci.yml/badge.svg)](https://github.com/heroku/cnb-shim/actions/workflows/ci.yml)
 
 > [!WARNING]
-> This project is deprecated (and about to be sunset) and does not support modern Buildpack API and lifecycle versions.
+> This project has been sunset and does not support modern Buildpack API and lifecycle versions.
 >
 > Please switch to native CNB implementations rather than using this shim.
 >
